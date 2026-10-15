@@ -10,33 +10,141 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LiveRouteImport } from './routes/live'
+import { Route as MoviesRouteImport } from './routes/movies'
+import { Route as MyListRouteImport } from './routes/my-list'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as SeriesRouteImport } from './routes/series'
+import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as DetailsIdRouteImport } from './routes/details.$id'
+import { Route as WatchIdRouteImport } from './routes/watch.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LiveRoute = LiveRouteImport.update({
+  id: '/live',
+  path: '/live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoviesRoute = MoviesRouteImport.update({
+  id: '/movies',
+  path: '/movies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyListRoute = MyListRouteImport.update({
+  id: '/my-list',
+  path: '/my-list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeriesRoute = SeriesRouteImport.update({
+  id: '/series',
+  path: '/series',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DetailsIdRoute = DetailsIdRouteImport.update({
+  id: '/details/$id',
+  path: '/details/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchIdRoute = WatchIdRouteImport.update({
+  id: '/watch/$id',
+  path: '/watch/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/live': typeof LiveRoute
+  '/movies': typeof MoviesRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
+  '/series': typeof SeriesRoute
+  '/settings': typeof SettingsRoute
+  '/details/$id': typeof DetailsIdRoute
+  '/watch/$id': typeof WatchIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/live': typeof LiveRoute
+  '/movies': typeof MoviesRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
+  '/series': typeof SeriesRoute
+  '/settings': typeof SettingsRoute
+  '/details/$id': typeof DetailsIdRoute
+  '/watch/$id': typeof WatchIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/live': typeof LiveRoute
+  '/movies': typeof MoviesRoute
+  '/my-list': typeof MyListRoute
+  '/search': typeof SearchRoute
+  '/series': typeof SeriesRoute
+  '/settings': typeof SettingsRoute
+  '/details/$id': typeof DetailsIdRoute
+  '/watch/$id': typeof WatchIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/live'
+    | '/movies'
+    | '/my-list'
+    | '/search'
+    | '/series'
+    | '/settings'
+    | '/details/$id'
+    | '/watch/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/live'
+    | '/movies'
+    | '/my-list'
+    | '/search'
+    | '/series'
+    | '/settings'
+    | '/details/$id'
+    | '/watch/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/live'
+    | '/movies'
+    | '/my-list'
+    | '/search'
+    | '/series'
+    | '/settings'
+    | '/details/$id'
+    | '/watch/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LiveRoute: typeof LiveRoute
+  MoviesRoute: typeof MoviesRoute
+  MyListRoute: typeof MyListRoute
+  SearchRoute: typeof SearchRoute
+  SeriesRoute: typeof SeriesRoute
+  SettingsRoute: typeof SettingsRoute
+  DetailsIdRoute: typeof DetailsIdRoute
+  WatchIdRoute: typeof WatchIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +156,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/live': {
+      id: '/live'
+      path: '/live'
+      fullPath: '/live'
+      preLoaderRoute: typeof LiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/movies': {
+      id: '/movies'
+      path: '/movies'
+      fullPath: '/movies'
+      preLoaderRoute: typeof MoviesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-list': {
+      id: '/my-list'
+      path: '/my-list'
+      fullPath: '/my-list'
+      preLoaderRoute: typeof MyListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/series': {
+      id: '/series'
+      path: '/series'
+      fullPath: '/series'
+      preLoaderRoute: typeof SeriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/details/$id': {
+      id: '/details/$id'
+      path: '/details/$id'
+      fullPath: '/details/$id'
+      preLoaderRoute: typeof DetailsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watch/$id': {
+      id: '/watch/$id'
+      path: '/watch/$id'
+      fullPath: '/watch/$id'
+      preLoaderRoute: typeof WatchIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LiveRoute: LiveRoute,
+  MoviesRoute: MoviesRoute,
+  MyListRoute: MyListRoute,
+  SearchRoute: SearchRoute,
+  SeriesRoute: SeriesRoute,
+  SettingsRoute: SettingsRoute,
+  DetailsIdRoute: DetailsIdRoute,
+  WatchIdRoute: WatchIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
