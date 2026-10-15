@@ -12,7 +12,7 @@ type CrowContextValue = {
   saveProfile: (profile: Viewer) => void; deleteProfile: (id: string) => void;
   toggleList: (id: string) => void; setProgress: (id: string, value: number) => void;
   preference: <K extends keyof ViewerState>(key: K, value: ViewerState[K]) => void;
-  remember: (id: string) => void; restore: () => void; notify: (message: string) => void;
+  remember: (id: string) => void; restore: () => void; returnToLibrary: () => void; notify: (message: string) => void;
 };
 const CrowContext = createContext<CrowContextValue | null>(null);
 export function useCrow() {
@@ -42,6 +42,7 @@ export function CrowProvider({ children }: { children: ReactNode }) {
   const [manage, setManage] = useState(false);
   const [deleting, setDeleting] = useState<Viewer | null>(null);
   const [previousFocus, setPreviousFocus] = useState('');
+  const [browsePath, setBrowsePath] = useState<'/' | '/movies' | '/series' | '/search' | '/my-list' | '/live' | '/settings'>('/');
   const pathname = useRouterState({ select: state => state.location.pathname });
   const router = useRouter();
   const active = profiles.find(profile => profile.id === activeId) ?? null;
@@ -67,9 +68,9 @@ export function CrowProvider({ children }: { children: ReactNode }) {
       const id = pathname.split('/').pop();
       if (id?.startsWith('channel-')) router.navigate({ to: '/live' });
       else if (id) router.navigate({ to: '/details/$id', params: { id } });
-    } else if (pathname.startsWith('/details')) { router.history.back(); restore(); }
+    } else if (pathname.startsWith('/details')) { router.navigate({ to: browsePath }); restore(); }
     else focusRemote(`nav-${pathname}`);
-  }, [active, pathname, editing, deleting, router, restore]);
+  }, [active, pathname, editing, deleting, router, restore, browsePath]);
   useRemote(back);
 
   function updateState(update: (current: ViewerState) => ViewerState) {
@@ -85,7 +86,8 @@ export function CrowProvider({ children }: { children: ReactNode }) {
     toggleList: id => { const saved = state.list.includes(id); updateState(current => toggleSaved(current, id)); notify(saved ? 'Removed from My List' : 'Added to My List'); },
     setProgress: (id, progress) => updateState(current => ({ ...current, progress: { ...current.progress, [id]: progress } })),
     preference: (key, preferenceValue) => { updateState(current => ({ ...current, [key]: preferenceValue })); notify('Preference updated'); },
-    remember: id => setPreviousFocus(id), restore,
+    remember: id => { setPreviousFocus(id); if (pathname === '/' || pathname === '/movies' || pathname === '/series' || pathname === '/search' || pathname === '/my-list' || pathname === '/live' || pathname === '/settings') setBrowsePath(pathname); }, restore,
+    returnToLibrary: () => { router.navigate({ to: browsePath }); restore(); },
   };
 
   return <CrowContext.Provider value={value}>

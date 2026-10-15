@@ -19,7 +19,7 @@ export function DetailScreen({ id }: { id: string }) {
   const progress = crow.state.progress[id] ?? 0;
   const unfinished = progress > 0 && progress < item.duration * 60;
   const saved = crow.state.list.includes(id);
-  function goBack() { router.history.back(); crow.restore(); }
+  function goBack() { crow.returnToLibrary(); }
   return <main className="detail-page" onKeyDown={event => { if (more && event.key === 'Escape') { event.preventDefault(); setMore(false); setTimeout(() => focusRemote('more-info'), 40); } }}>
     {item.backdrop && <img className="detail-backdrop" src={item.backdrop} alt="" />}
     <Button variant="ghost" className="detail-back" data-remote="detail-back" onClick={goBack}><ArrowLeft /> Back to library</Button>
