@@ -40,6 +40,7 @@ export function CrowProvider({ children }: { children: ReactNode }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<Viewer | null>(null);
   const [manage, setManage] = useState(false);
+  const [deleting, setDeleting] = useState<Viewer | null>(null);
   const [previousFocus, setPreviousFocus] = useState('');
   const pathname = useRouterState({ select: state => state.location.pathname });
   const router = useRouter();
@@ -59,6 +60,7 @@ export function CrowProvider({ children }: { children: ReactNode }) {
   }, [pathname, activeId, fullscreen, previousFocus]);
   useEffect(() => { if (editing) setTimeout(() => focusRemote('profile-name'), 60); }, [editing]);
   const back = useCallback(() => {
+    if (deleting) { setDeleting(null); setTimeout(() => focusRemote('manage-profiles'), 50); return; }
     if (editing) { setEditing(null); setTimeout(() => focusRemote(), 50); return; }
     if (!active) { setManage(false); return; }
     if (pathname.startsWith('/watch')) {
@@ -67,7 +69,7 @@ export function CrowProvider({ children }: { children: ReactNode }) {
       else if (id) router.navigate({ to: '/details/$id', params: { id } });
     } else if (pathname.startsWith('/details')) { router.history.back(); restore(); }
     else focusRemote(`nav-${pathname}`);
-  }, [active, pathname, editing, router, restore]);
+  }, [active, pathname, editing, deleting, router, restore]);
   useRemote(back);
 
   function updateState(update: (current: ViewerState) => ViewerState) {
@@ -105,7 +107,8 @@ export function CrowProvider({ children }: { children: ReactNode }) {
       </aside>}
       <div className={fullscreen ? 'fullscreen-content' : 'shell-content'}>{children}</div>
     </div>}
-    {editing && <ProfileEditor profile={editing} onClose={() => { setEditing(null); setTimeout(() => focusRemote(), 50); }} onSave={profile => { value.saveProfile(profile); setEditing(null); setTimeout(() => focusRemote(`profile-${profile.id}`), 50); }} />}
+    {editing && <ProfileEditor profile={editing} onClose={() => { setEditing(null); setTimeout(() => focusRemote(), 50); }} onSave={profile => { value.saveProfile(profile); setEditing(null); setTimeout(() => focusRemote(`profile-${profile.id}`), 50); }} {...(profiles.some(profile => profile.id === editing.id) ? { onDelete: () => { setDeleting(editing); setEditing(null); setTimeout(() => focusRemote('entry-cancel-delete'), 50); } } : {})} />}
+    {deleting && <div className="dialog-backdrop"><section className="crow-dialog" role="dialog" aria-modal="true" aria-label="Delete profile" data-remote-modal><div className="dialog-heading"><h2>Delete {deleting.name}?</h2></div><p>Their list and viewing progress will be removed. Other profiles won't be affected.</p><div className="dialog-actions"><Button variant="secondary" data-remote="entry-cancel-delete" onClick={() => { setDeleting(null); setTimeout(() => focusRemote('manage-profiles'), 50); }}>Cancel</Button><Button variant="destructive" data-remote="entry-confirm-delete" onClick={() => { value.deleteProfile(deleting.id); setDeleting(null); setTimeout(() => focusRemote('add-profile'), 50); }}>Delete profile</Button></div></section></div>}
     {notice && <div className="action-notice" role="status"><Check />{notice}</div>}
   </CrowContext.Provider>;
 }

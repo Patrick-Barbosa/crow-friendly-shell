@@ -27,7 +27,11 @@ export function PlayerScreen({ id, episode = 1 }: { id: string; episode?: number
   const [cancelled, setCancelled] = useState(false);
   positionRef.current = position;
   const title = isLive ? channel?.name : item?.title;
-  const exit = () => { if (isLive) router.navigate({ to: '/live' }); else router.navigate({ to: '/details/$id', params: { id } }); };
+  const exit = () => { if (isLive) router.navigate({ to: '/live', replace: true }); else router.navigate({ to: '/details/$id', params: { id }, replace: true }); };
+  useEffect(() => {
+    if (!overlay) document.querySelector<HTMLElement>('.player')?.focus({ preventScroll: true });
+    else if (!panel) setTimeout(() => focusRemote('player-pause'), 80);
+  }, [overlay]);
   useEffect(() => { const timer = setInterval(() => { if (playing && !isLive) setPosition(current => Math.min(duration, current + 1)); }, 1000); return () => clearInterval(timer); }, [playing, isLive, duration]);
   useEffect(() => { if (isLive) return; const timer = setInterval(() => crow.setProgress(id, positionRef.current), 5000); return () => { clearInterval(timer); crow.setProgress(id, positionRef.current); }; }, [id, isLive]);
   useEffect(() => { if (!overlay || panel) return; const timer = setTimeout(() => setOverlay(false), 6000); return () => clearTimeout(timer); }, [overlay, lastInteraction, panel]);
@@ -45,7 +49,7 @@ export function PlayerScreen({ id, episode = 1 }: { id: string; episode?: number
   return <main className="player" tabIndex={-1} onClick={() => { setOverlay(true); setLastInteraction(Date.now()); }} onKeyDown={event => {
     setLastInteraction(Date.now());
     if (panel) { if (event.key === 'Escape') { event.preventDefault(); setPanel(null); setTimeout(() => focusRemote('player-pause'), 50); } return; }
-    if (event.key === 'Escape') { event.preventDefault(); if (overlay) setOverlay(false); else exit(); return; }
+    if (event.key === 'Escape') { event.preventDefault(); exit(); return; }
     if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !isLive) { event.preventDefault(); setPosition(current => seekPosition(current, event.key === 'ArrowRight' ? 1 : -1, duration)); setOverlay(true); return; }
     if (!overlay && isLive && ['ArrowUp', 'ArrowDown'].includes(event.key)) { event.preventDefault(); const index = channels.findIndex(value => value.id === channelId); const next = channels[(index + (event.key === 'ArrowDown' ? 1 : -1) + channels.length) % channels.length]; if (next) setChannelId(next.id); return; }
     if (!overlay && ['Enter', 'ArrowUp', 'ArrowDown'].includes(event.key)) { event.preventDefault(); setOverlay(true); setTimeout(() => focusRemote('player-pause'), 50); }
