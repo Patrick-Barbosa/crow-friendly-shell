@@ -30,19 +30,19 @@
 }
 :root, .dark {
   color-scheme: dark;
-  --background: oklch(0.168 0.013 255);
-  --foreground: oklch(0.975 0.005 258);
-  --card: oklch(0.239 0.015 255);
-  --surface: oklch(0.195 0.015 261);
+  --background: oklch(0.166535 0.012363 254.168);
+  --foreground: oklch(0.975469 0.004534 258.325);
+  --card: oklch(0.237353 0.015407 256.809);
+  --surface: oklch(0.194867 0.015514 261.573);
   --primary: var(--foreground);
   --primary-foreground: var(--background);
   --secondary: var(--card);
   --muted: var(--surface);
-  --muted-foreground: oklch(0.704 0.04 256.8);
-  --disabled: oklch(0.543 0.03 255);
-  --raised: oklch(0.277 0.023 262);
+  --muted-foreground: oklch(0.710672 0.035114 256.788);
+  --disabled: oklch(0.540875 0.028989 255.644);
+  --raised: oklch(0.275873 0.022189 262.481);
   --accent: var(--raised);
-  --border: oklch(0.339 0.025 257);
+  --border: oklch(0.338252 0.023820 258.364);
   --destructive: oklch(0.64 0.17 25);
   --avatar-one: oklch(0.286 0.026 253);
   --avatar-two: oklch(0.3 0.017 163);
@@ -339,7 +339,7 @@
   .featured-label { margin-bottom:16px; font-size:11px; }
   .hero-synopsis { font-size:15px; }
   .media-metadata { font-size:12px; gap:8px; }
-  .hero-actions { gap:8px; }
+  .hero-actions { gap:8px; flex-wrap:wrap; }
   .crow-action { font-size:13px; padding:0 14px; height:42px; }
   .hero-position { display:none; }
   .content-row { padding:0 24px; margin-bottom:32px; }
