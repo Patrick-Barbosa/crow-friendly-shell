@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Bookmark, Play, Info, RotateCcw, Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { library } from '@/lib/crow-library';
 import { filterLibrary, type Media } from '@/lib/crow-model';
@@ -32,7 +32,7 @@ export function Header({ title, description }: { title: string; description?: st
 
 export function Row({ title, items, landscape, prefix, seeAll }: { title: string; items: Media[]; landscape?: boolean; prefix: string; seeAll?: '/movies' | '/series' | '/my-list' }) {
   if (!items.length) return null;
-  return <section className="content-row"><div className="section-heading"><h2>{title}<span className="row-count">{items.length}</span></h2>{seeAll && <Button variant="ghost" className="section-link" asChild><Link to={seeAll} data-remote={`all-${prefix}`}>View all <ArrowRight /></Link></Button>}</div><div className="horizontal-row">{items.map(item => <ContentCard key={item.id} item={item} landscape={landscape} prefix={prefix} />)}</div></section>;
+  return <section className="content-row"><div className="section-heading"><h2>{title}<span className="row-count">{items.length}</span></h2>{seeAll && <Button variant="ghost" className="section-link" asChild><Link to={seeAll} data-remote={`all-${prefix}`}>View all <ArrowRight /></Link></Button>}</div><div className="horizontal-row">{items.map(item => <ContentCard key={item.id} item={item} landscape={landscape ?? false} prefix={prefix} />)}</div></section>;
 }
 
 export function HomeScreen() {
@@ -41,7 +41,7 @@ export function HomeScreen() {
   if (!item) return null;
   const continuing = library.filter(media => (crow.state.progress[media.id] ?? 0) > 0 && (crow.state.progress[media.id] ?? 0) < media.duration * 60);
   return <main>
-    <div className="topbar"><Brand /><div className="topbar-right"><span className="library-status"><i />Local library</span><div className="topbar-profile"><span>{crow.active?.name}</span><Avatar variant={crow.active?.avatar} /></div></div></div>
+    <div className="topbar"><Brand /><div className="topbar-right"><span className="library-status"><i />Local library</span><div className="topbar-profile"><span>{crow.active?.name}</span><Avatar variant={crow.active?.avatar ?? 0} /></div></div></div>
     <section className="hero"><img className="hero-art" src={item.backdrop} alt="Paul Atreides and Chani in the desert of Arrakis" /><div className="hero-copy"><div className="featured-label"><FilmMark /> FROM YOUR LIBRARY</div><h1 className="hero-title">Dune: Part Two</h1><Metadata item={item} /><p className="hero-synopsis">{item.synopsis}</p><div className="hero-actions"><Button asChild className="crow-action"><Link to="/watch/$id" params={{ id: item.id }} data-remote="hero-play" data-initial-focus onClick={() => crow.remember('hero-play')}><Play fill="currentColor" /> Play movie</Link></Button><Button variant="secondary" className="crow-action" asChild><Link to="/details/$id" params={{ id: item.id }} data-remote="hero-details" onClick={() => crow.remember('hero-details')}><Info /> More details</Link></Button><Button variant="secondary" className="crow-action" size="icon" aria-label={crow.state.list.includes(item.id) ? 'Remove Dune from My List' : 'Add Dune to My List'} data-remote="hero-list" onClick={() => crow.toggleList(item.id)}><Bookmark fill={crow.state.list.includes(item.id) ? 'currentColor' : 'none'} /></Button></div></div><div className="hero-position"><i /><span>FEATURED</span></div></section>
     <Row title="Continue watching" items={continuing} landscape prefix="continue" />
     <Row title="My List" items={library.filter(media => crow.state.list.includes(media.id))} prefix="saved" seeAll="/my-list" />
@@ -52,10 +52,19 @@ export function HomeScreen() {
 }
 function FilmMark() { return <svg viewBox="0 0 20 20" fill="none" stroke="currentColor"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M7 3v14M13 3v14M3 7h4m-4 6h4m6-6h4m-4 6h4" /></svg>; }
 
+const browseMemory = new Map<string, string>();
+function useBrowseState(key: string, initial: string) {
+  const crow = useCrow();
+  const scoped = `${crow.active?.id}-${key}`;
+  const [value, setValue] = useState(() => browseMemory.get(scoped) ?? initial);
+  useEffect(() => { browseMemory.set(scoped, value); }, [scoped, value]);
+  return [value, setValue] as const;
+}
+
 export function LibraryScreen({ kind }: { kind: 'movie' | 'series' }) {
-  const [genre, setGenre] = useState('All genres');
-  const [year, setYear] = useState('All years');
-  const [sort, setSort] = useState('Recently added');
+  const [genre, setGenre] = useBrowseState(`${kind}-genre`, 'All genres');
+  const [year, setYear] = useBrowseState(`${kind}-year`, 'All years');
+  const [sort, setSort] = useBrowseState(`${kind}-sort`, 'Recently added');
   const items = library.filter(item => item.kind === kind);
   const visible = filterLibrary(items, genre, year, sort);
   const reset = () => { setGenre('All genres'); setYear('All years'); setSort('Recently added'); };
@@ -78,11 +87,10 @@ export function MyListScreen() {
 }
 
 export function SearchScreen() {
-  const [query, setQuery] = useState('');
-  const [inputFocused, setInputFocused] = useState(false);
+  const [query, setQuery] = useBrowseState('search', '');
   const items = filterLibrary(library, 'All genres', 'All years', 'Recently added', query);
   const keys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
-  return <main className="page"><Header title="Search" /><div className="search-input-wrap"><Search /><input aria-label="Search your library" placeholder="Movies, series, a little inspiration…" value={query} onFocus={() => setInputFocused(true)} onBlur={() => setInputFocused(false)} onChange={event => setQuery(event.target.value)} data-remote="search-input" data-initial-focus /><Button variant="ghost" aria-label="Clear search" data-remote="clear-search" onClick={() => setQuery('')}><RotateCcw /></Button></div>
+  return <main className="page"><Header title="Search" /><div className="search-input-wrap"><Search /><input aria-label="Search your library" placeholder="Movies, series, a little inspiration…" value={query} onChange={event => setQuery(event.target.value)} data-remote="search-input" data-initial-focus /><Button variant="ghost" aria-label="Clear search" data-remote="clear-search" onClick={() => setQuery('')}><RotateCcw /></Button></div>
     <div className="keyboard" aria-label="On-screen keyboard">{keys.map(key => <Button variant="secondary" key={key} data-remote={`key-${key}`} onClick={() => setQuery(current => current + key.toLowerCase())}>{key}</Button>)}<Button variant="secondary" className="wide-key" data-remote="key-space" onClick={() => setQuery(current => current + ' ')}>Space</Button><Button variant="secondary" className="wide-key" data-remote="key-delete" onClick={() => setQuery(current => current.slice(0, -1))}>Delete</Button><Button variant="secondary" className="wide-key" data-remote="key-clear" onClick={() => setQuery('')}>Clear</Button></div>
     <div className="section-heading"><h2>{query ? `Results for “${query}”` : 'In your library'}<span className="row-count">{items.length}</span></h2></div>{items.length ? <div className="poster-grid">{items.map(item => <ContentCard key={item.id} item={item} prefix="search" />)}</div> : <EmptyState title="Nothing here just yet" description="No titles match your search. Try another name." action={<Button data-remote="edit-query" onClick={() => document.querySelector<HTMLInputElement>('[data-remote="search-input"]')?.focus()}>Edit search</Button>} />}
   </main>;

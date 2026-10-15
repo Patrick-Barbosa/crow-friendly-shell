@@ -50,7 +50,13 @@ export function CrowProvider({ children }: { children: ReactNode }) {
   const notify = useCallback((message: string) => setNotice(message), []);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 2600); return () => clearTimeout(timer); }, [notice]);
   const restore = useCallback(() => { setTimeout(() => focusRemote(previousFocus), 100); }, [previousFocus]);
-  useEffect(() => { const timer = setTimeout(() => focusRemote(pathname.startsWith('/details') || fullscreen ? undefined : previousFocus), 100); return () => clearTimeout(timer); }, [pathname, activeId, fullscreen, previousFocus]);
+  useEffect(() => {
+    const target = pathname.startsWith('/details') || fullscreen ? undefined : previousFocus;
+    const timer = setTimeout(() => focusRemote(target), 160);
+    const retry = setInterval(() => { if (!document.activeElement?.matches('[data-remote]')) focusRemote(target); }, 180);
+    const stop = setTimeout(() => clearInterval(retry), 2400);
+    return () => { clearTimeout(timer); clearInterval(retry); clearTimeout(stop); };
+  }, [pathname, activeId, fullscreen, previousFocus]);
   useEffect(() => { if (editing) setTimeout(() => focusRemote('profile-name'), 60); }, [editing]);
   const back = useCallback(() => {
     if (editing) { setEditing(null); setTimeout(() => focusRemote(), 50); return; }
@@ -104,7 +110,7 @@ export function CrowProvider({ children }: { children: ReactNode }) {
   </CrowContext.Provider>;
 }
 
-export function ProfileEditor({ profile, onClose, onSave }: { profile: Viewer; onClose: () => void; onSave: (profile: Viewer) => void }) {
+export function ProfileEditor({ profile, onClose, onSave, onDelete }: { profile: Viewer; onClose: () => void; onSave: (profile: Viewer) => void; onDelete?: () => void }) {
   const [name, setName] = useState(profile.name);
   const [avatar, setAvatar] = useState(profile.avatar);
   useEffect(() => { setTimeout(() => focusRemote('profile-name'), 50); }, []);
@@ -112,6 +118,6 @@ export function ProfileEditor({ profile, onClose, onSave }: { profile: Viewer; o
     <div className="dialog-heading"><h2>{profile.name ? 'Edit profile' : 'A new viewer'}</h2><Button variant="ghost" size="icon" data-remote="close-editor" aria-label="Close" onClick={onClose}><ArrowLeft /></Button></div>
     <label htmlFor="profile-name">Name</label><input id="profile-name" value={name} data-remote="profile-name" onChange={event => setName(event.target.value)} placeholder="Your name" maxLength={20} />
     <label>Choose an avatar</label><div className="avatar-options">{[0, 1, 2, 3].map(index => <Button key={index} variant="ghost" className={`avatar-option ${avatar === index ? 'selected-avatar' : ''}`} aria-label={`Avatar ${index + 1}`} data-remote={`avatar-${index}`} onClick={() => setAvatar(index)}><Avatar variant={index} />{avatar === index && <Check />}</Button>)}</div>
-    <div className="dialog-actions"><Button variant="secondary" data-remote="cancel-profile" onClick={onClose}>Cancel</Button><Button data-remote="save-profile" disabled={!name.trim()} onClick={() => onSave({ ...profile, name: name.trim(), avatar })}>Save profile</Button></div>
+    <div className="dialog-actions">{onDelete && <Button variant="ghost" data-remote="delete-profile" onClick={onDelete}>Delete profile</Button>}<Button variant="secondary" data-remote="cancel-profile" onClick={onClose}>Cancel</Button><Button data-remote="save-profile" disabled={!name.trim()} onClick={() => onSave({ ...profile, name: name.trim(), avatar })}>Save profile</Button></div>
   </section></div>;
 }

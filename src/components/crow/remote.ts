@@ -6,7 +6,7 @@ export function remoteElements(scope: ParentNode = document) {
 
 export function focusRemote(id?: string) {
   const all = remoteElements();
-  const target = all.find(el => el.dataset.remote === id) ?? all.find(el => el.hasAttribute('data-initial-focus')) ?? all.find(el => !el.closest('aside')) ?? all[0];
+  const target = all.find(el => el.dataset['remote'] === id) ?? all.find(el => el.hasAttribute('data-initial-focus')) ?? all.find(el => !el.closest('aside')) ?? all[0];
   target?.focus({ preventScroll: true });
   target?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' });
 }
