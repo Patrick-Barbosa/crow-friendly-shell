@@ -1,14 +1,22 @@
-# Welcome to your Lovable project
+# Crow Friendly Shell
+
+The prototype — build the front-end shell first with the dark design system and remote-style keyboard navigation.
+
+my principal objective here is valid the design, the backend could be a completely mockup.
+
+Follow the attached CROW — Design System & Product UI Specification.
 
 This project was built with [Lovable](https://lovable.dev).
 
+**Live app**: https://crow-friendly-shell.lovable.app
+
 ## Build with Lovable
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/769cbf1e-c097-4b72-b3d9-e83eb9362126).
 
 - **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development
 
@@ -20,10 +28,3 @@ cd <repository-name>
 npm i
 npm run dev
 ```
-
-## Built with
-
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
